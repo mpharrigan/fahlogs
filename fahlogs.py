@@ -23,17 +23,20 @@ class Device:
 
 
 class FAHLog:
+
     dev_re = re.compile(r"\s*-- (\d) --\s*\n"
                          "\s*DEVICE_NAME = (.+)\n"
                          "\s*DEVICE_VENDOR = (.+)\n"
                          "\s*DEVICE_VERSION = (.+)\n")
     arg_re = re.compile(r"Arguments passed:.*-gpu (\d)")
+    time_re = re.compile(r"Launch time: ([\d-T:Z]+)"
     
     def __init__(self, fn, success=True):
         with open(fn) as f:
             s = f.read()
             device_matches = self.dev_re.finditer(s)
             arg_match = int(self.arg_re.search(s).group(1))
+            time_match = self.time_re.search(s).group(1)
             
         devices = [Device(ma) for ma in device_matches]
         devices = dict((d.idx, d) for d in devices)
@@ -44,6 +47,7 @@ class FAHLog:
         except KeyError:
             print("Warning: error parsing", fn)
             self.device = Device()
+        self.time = time_match
         
         # Save some more parameters
         self.success = success
@@ -56,6 +60,7 @@ class FAHLog:
                     vendor = self.device.vendor,
                     version = self.device.version,
                     success = self.success,
+                    time = self.time,
                     fn = self.fn)
     
     def __str__(self):
