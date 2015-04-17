@@ -1,7 +1,7 @@
 from __future__ import print_function
 import re
 
-class Device:
+class Device(object):
     """Represents an OpenCL Device that FAHClient found."""
     def __init__(self, ma=None):
         if ma is not None:
@@ -20,7 +20,7 @@ class Device:
     
     __repr__ = __str__
 
-class Platform:
+class Platform(object):
     """Represents and OpenCL Platform that FAHClient found."""
     def __init__(self, idx, devices):
         self.idx = idx
@@ -32,7 +32,7 @@ class Platform:
     __repr__ = __str__
 
 
-class FAHLog:
+class FAHLog(object):
     dev_res = (r"\s*-- (\d) --\s*\n"
                 "\s*DEVICE_NAME = (.+)\n"
                 "\s*DEVICE_VENDOR = (.+)\n"
@@ -48,7 +48,15 @@ class FAHLog:
     def __init__(self, fn, success=True):
         with open(fn) as f:
             s = f.read()
+       
+        # Get time 
+        time_match = self.time_re.search(s).group(1)
+        self.time = time_match
         
+        # Save parameters
+        self.success = success
+        self.fn = fn
+
         # Parse platforms and their devices
         platform_matches = self.platform_re.finditer(s)
         platforms = dict()
@@ -59,23 +67,20 @@ class FAHLog:
             plat_idx = int(platform_ma.group(1))
             platforms[plat_idx] = Platform(plat_idx, devices)
         self.platforms = platforms
+        if len(platforms) <= 0:
+            self.device = Device()
+            return
 
         # Find which device was actually used
-        platidx = int(self.platidx_re.search(s).group(1))
-        devidx = int(self.devidx_re.search(s).group(1))
         try:
+            platidx = int(self.platidx_re.search(s).group(1))
+            devidx = int(self.devidx_re.search(s).group(1))
             self.platform = platforms[platidx]
             self.device = self.platform.devices[devidx]
-        except KeyError:
+        except (KeyError, AttributeError) as e:
             print("Warning: error parsing", fn)
             self.device = Device()
         
-        time_match = self.time_re.search(s).group(1)
-        self.time = time_match
-        
-        # Save some more parameters
-        self.success = success
-        self.fn = fn
         
     def to_dict(self):
         """Return as a dictionary (for pandas)"""
