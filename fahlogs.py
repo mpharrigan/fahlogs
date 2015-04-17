@@ -76,6 +76,9 @@ class FAHLog(object):
             platidx = int(self.platidx_re.search(s).group(1))
             devidx = int(self.devidx_re.search(s).group(1))
             self.platform = platforms[platidx]
+            # mimic openmm's behavior (?):
+            if devidx >= len(self.platform.devices):
+                devidx = 0
             self.device = self.platform.devices[devidx]
         except (KeyError, AttributeError) as e:
             print("Warning: error parsing", fn)
