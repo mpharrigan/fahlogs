@@ -33,6 +33,7 @@ class Platform:
 
 
 class FAHLog:
+<<<<<<< HEAD
     dev_res = (r"\s*-- (\d) --\s*\n"
                 "\s*DEVICE_NAME = (.+)\n"
                 "\s*DEVICE_VENDOR = (.+)\n"
@@ -43,6 +44,7 @@ class FAHLog:
     devidx_re = re.compile(r"Arguments passed:.*-gpu (\d)")
     platidx_re = re.compile(r"Looking for vendor: \w+..."
                              "found on platformId (\d+)")
+    time_re = re.compile(r"Launch time: ([\d\-T:Z]+)")
     
     def __init__(self, fn, success=True):
         with open(fn) as f:
@@ -69,6 +71,9 @@ class FAHLog:
             print("Warning: error parsing", fn)
             self.device = Device()
         
+        time_match = self.time_re.search(s).group(1)
+        self.time = time_match
+        
         # Save some more parameters
         self.success = success
         self.fn = fn
@@ -80,6 +85,7 @@ class FAHLog:
                     vendor = self.device.vendor,
                     version = self.device.version,
                     success = self.success,
+                    time = self.time,
                     fn = self.fn)
     
     def __str__(self):
