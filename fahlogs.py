@@ -33,7 +33,6 @@ class Platform:
 
 
 class FAHLog:
-<<<<<<< HEAD
     dev_res = (r"\s*-- (\d) --\s*\n"
                 "\s*DEVICE_NAME = (.+)\n"
                 "\s*DEVICE_VENDOR = (.+)\n"
