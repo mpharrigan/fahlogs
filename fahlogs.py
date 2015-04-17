@@ -29,7 +29,7 @@ class FAHLog:
                          "\s*DEVICE_VENDOR = (.+)\n"
                          "\s*DEVICE_VERSION = (.+)\n")
     arg_re = re.compile(r"Arguments passed:.*-gpu (\d)")
-    time_re = re.compile(r"Launch time: ([\d-T:Z]+)"
+    time_re = re.compile(r"Launch time: ([\d\-T:Z]+)")
     
     def __init__(self, fn, success=True):
         with open(fn) as f:
