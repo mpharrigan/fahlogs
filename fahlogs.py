@@ -46,9 +46,11 @@ class FAHLog(object):
     time_re = re.compile(r"Launch time: ([\d\-T:Z]+)")
     time_finish_re = re.compile(r"(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ)\s*\n"
                                  "\[ Leaving  Main \]")
+    os_re = re.compile(r"OS: (.+)\n")
     
     def __init__(self, fn, success=True):
-        with open(fn) as f:
+        # 'U' means universal line-endings
+        with open(fn, 'rU') as f:
             s = f.read()
        
         # Get time 
@@ -67,7 +69,19 @@ class FAHLog(object):
                 self.finish_time = finish_time_match
             except AttributeError:
                 print("Warning: error (finish) parsing", fn)
-    
+
+        # Get operating system
+        try:
+            os_splits = self.os_re.search(s).group(1).split()
+        except AttributeError:
+            print("Warniing: error (os) parsing", fn)
+            os_splits = ["bad_os1", "bad_os2"]
+        self.os = os_splits[0]
+        self.os2 = os_splits[1]
+        if len(os_splits) > 2:
+            self.os3 = " ".join(os_splits[2:])
+        else:
+            self.os3 = ""
         
         # Save parameters
         self.success = success
@@ -110,6 +124,9 @@ class FAHLog(object):
                     success = self.success,
                     time = self.time,
                     finish_time = self.finish_time,
+                    os = self.os,
+                    os2 = self.os2,
+                    os3 = self.os3,
                     fn = self.fn)
     
     def __str__(self):
