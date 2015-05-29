@@ -44,6 +44,8 @@ class FAHLog(object):
     platidx_re = re.compile(r"Looking for vendor: \w+..."
                              "found on platformId (\d+)")
     time_re = re.compile(r"Launch time: ([\d\-T:Z]+)")
+    time_finish_re = re.compile(r"(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ)\s*\n"
+                                 "\[ Leaving  Main \]")
     
     def __init__(self, fn, success=True):
         with open(fn) as f:
@@ -55,7 +57,16 @@ class FAHLog(object):
             self.time = time_match
         except AttributeError:
             print("Warning: error (time) parsing", fn)
-            self.time = '0'
+            self.time = 'NaT'
+
+        # Get finish time
+        self.finish_time = 'NaT'
+        if success:
+            try:
+                finish_time_match = self.time_finish_re.search(s).group(1)
+                self.finish_time = finish_time_match
+            except AttributeError:
+                print("Warning: error (finish) parsing", fn)
     
         
         # Save parameters
@@ -98,6 +109,7 @@ class FAHLog(object):
                     version = self.device.version,
                     success = self.success,
                     time = self.time,
+                    finish_time = self.finish_time,
                     fn = self.fn)
     
     def __str__(self):
