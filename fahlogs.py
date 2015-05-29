@@ -50,8 +50,12 @@ class FAHLog(object):
             s = f.read()
        
         # Get time 
-        time_match = self.time_re.search(s).group(1)
-        self.time = time_match
+        try:
+            time_match = self.time_re.search(s).group(1)
+            self.time = time_match
+        except AttributeError:
+            self.time = '0'
+    
         
         # Save parameters
         self.success = success
