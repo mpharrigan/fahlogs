@@ -54,6 +54,7 @@ class FAHLog(object):
             time_match = self.time_re.search(s).group(1)
             self.time = time_match
         except AttributeError:
+            print("Warning: error (time) parsing", fn)
             self.time = '0'
     
         
@@ -85,7 +86,7 @@ class FAHLog(object):
                 devidx = 0
             self.device = self.platform.devices[devidx]
         except (KeyError, AttributeError) as e:
-            print("Warning: error parsing", fn)
+            print("Warning: error (device) parsing", fn)
             self.device = Device()
         
         
